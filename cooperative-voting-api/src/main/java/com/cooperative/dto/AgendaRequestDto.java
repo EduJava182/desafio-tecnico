@@ -1,12 +1,23 @@
 package com.cooperative.dto;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-public record AgendaRequestDto(
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class AgendaRequestDto {
 
-        @NotBlank(message = "Title is required")
-        String title,
+    @NotBlank(message = "Title is required")
+    private String title;
 
-        @NotBlank(message = "Description is required")
-        String description
-) {}
+    @NotBlank(message = "Description is required")
+    private String description;
+}
+
+
+

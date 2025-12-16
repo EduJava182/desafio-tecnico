@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface VoteRepository extends JpaRepository<Vote, Long> {
 
-    boolean checkIfUserAlreadyVoted(Long agendaId, Long userId);
+    boolean existsByAgendaIdAndUserId(Long agendaId, Long userId);
 
     @Query("""
         SELECT

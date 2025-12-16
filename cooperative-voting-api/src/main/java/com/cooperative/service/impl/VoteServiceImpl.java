@@ -3,6 +3,7 @@ package com.cooperative.service.impl;
 import com.cooperative.dto.VoteRequestDto;
 import com.cooperative.dto.VoteResponseDto;
 import com.cooperative.exception.UserAlreadyVotedException;
+import com.cooperative.exception.VoteSessionException;
 import com.cooperative.model.Agenda;
 import com.cooperative.model.Vote;
 import com.cooperative.repository.VoteRepository;
@@ -22,15 +23,17 @@ public class VoteServiceImpl implements VoteServiceI {
     @Override
     public void submitVote(Long agendaId, VoteRequestDto voteRequestDto) {
         Agenda agenda = agendaServiceI.findById(agendaId);
-        
+
         agendaServiceI.validateAgendaInVoting(agenda);
 
-        this.checkIfUserAlreadyVoted(agendaId, voteRequestDto.userId());
+        Long userId = voteRequestDto.getUserId();
+
+        this.checkIfUserAlreadyVoted(agendaId, userId);
 
         Vote vote = Vote.builder()
                 .agenda(agenda)
-                .userId(voteRequestDto.userId())
-                .voteType(voteRequestDto.vote())
+                .userId(userId)
+                .voteType(voteRequestDto.getVote())
                 .build();
 
         voteRepository.save(vote);
@@ -39,6 +42,11 @@ public class VoteServiceImpl implements VoteServiceI {
     @Override
     public VoteResponseDto voteCounter(long agendaId) {
         Agenda agenda = agendaServiceI.findById(agendaId);
+
+        if (agendaServiceI.isVotingOpen(agenda)) {
+            throw new VoteSessionException("Voting session is still open. " +
+                    "You can only see results after it is closed.");
+        }
 
         VoteResultProjection finalCount = voteRepository.countVotesFinal(agendaId);
 
@@ -52,7 +60,7 @@ public class VoteServiceImpl implements VoteServiceI {
 
     @Override
     public void checkIfUserAlreadyVoted(long agendaId, long userId) {
-        if (voteRepository.checkIfUserAlreadyVoted(agendaId, userId)) {
+        if (voteRepository.existsByAgendaIdAndUserId(agendaId, userId)) {
             throw new UserAlreadyVotedException("The member has already voted on this agenda.");
         }
     }

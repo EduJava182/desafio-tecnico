@@ -1,9 +1,19 @@
 package com.cooperative.dto;
 
-public record VoteResponseDto(
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-    long agendaId,
-    long yesVotes,
-    long noVotes,
-    long total
-) {}
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class VoteResponseDto {
+
+    private long agendaId;
+    private long yesVotes;
+    private long noVotes;
+    private long total;
+}
+

@@ -3,12 +3,13 @@ package com.cooperative.controller;
 import com.cooperative.dto.VoteRequestDto;
 import com.cooperative.dto.VoteResponseDto;
 import com.cooperative.service.inter.VoteServiceI;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
+
 
 @RestController
 @RequestMapping("/votes")
@@ -27,6 +28,7 @@ public class VoteController {
 
     @GetMapping("/{agendaId}/result")
     public ResponseEntity<VoteResponseDto> voteCounter(@PathVariable long agendaId) {
+
         return new ResponseEntity<>(voteServiceI.voteCounter(agendaId), HttpStatus.OK);
     }
 }

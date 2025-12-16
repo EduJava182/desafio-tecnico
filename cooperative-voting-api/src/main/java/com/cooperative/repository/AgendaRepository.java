@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AgendaRepository extends JpaRepository<Agenda, Long> {
 
-    boolean verifyByTitle(String title);
+    boolean existsByTitle(String title);
 }

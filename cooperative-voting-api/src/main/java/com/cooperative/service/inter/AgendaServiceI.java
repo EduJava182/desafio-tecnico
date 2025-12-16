@@ -5,13 +5,9 @@ import com.cooperative.dto.AgendaResponseDto;
 import com.cooperative.dto.AgendaSessionDto;
 import com.cooperative.model.Agenda;
 
-import java.util.List;
-
 public interface AgendaServiceI {
 
     AgendaResponseDto createAgenda(AgendaRequestDto agendaRequestDto);
-
-    List<AgendaResponseDto> getAllAgendas();
 
     AgendaSessionDto openAgenda(long agendaId, long duration);
 

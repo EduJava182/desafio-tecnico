@@ -29,6 +29,9 @@ public class Agenda implements Serializable {
     @Column(length = 500)
     private String description;
 
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
     @Column(name = "start_time")
     private LocalDateTime startTime;
 

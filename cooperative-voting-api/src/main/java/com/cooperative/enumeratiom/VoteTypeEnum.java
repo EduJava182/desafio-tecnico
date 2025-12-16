@@ -1,4 +1,4 @@
-package com.cooperative;
+package com.cooperative.enumeratiom;
 
 public enum VoteTypeEnum {
 

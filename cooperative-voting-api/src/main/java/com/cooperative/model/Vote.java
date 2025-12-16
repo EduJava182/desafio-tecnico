@@ -1,6 +1,6 @@
 package com.cooperative.model;
 
-import com.cooperative.VoteTypeEnum;
+import com.cooperative.enumeratiom.VoteTypeEnum;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -1,12 +1,19 @@
 package com.cooperative.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 
-public record AgendaSessionDto(
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class AgendaSessionDto {
 
-        long sessionId,
-        long agendaId,
-        LocalDateTime startTime,
-        LocalDateTime endTime
-) {
+    private long agendaId;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
 }

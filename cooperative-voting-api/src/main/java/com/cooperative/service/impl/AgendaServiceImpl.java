@@ -14,7 +14,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -25,34 +24,34 @@ public class AgendaServiceImpl implements AgendaServiceI {
 
     @Override
     public AgendaResponseDto createAgenda(AgendaRequestDto agendaRequestDto) {
-        String title = agendaRequestDto.title();
+        String title = agendaRequestDto.getTitle();
 
         this.verifyByTitle(title);
 
         Agenda agenda = Agenda.builder()
                 .title(title)
-                .description(agendaRequestDto.description())
+                .description(agendaRequestDto.getDescription())
+                .createdAt(LocalDateTime.now())
                 .build();
 
         return modelMapper.map(agendaRepository.save(agenda), AgendaResponseDto.class);
     }
 
     @Override
-    public List<AgendaResponseDto> getAllAgendas() {
-        return agendaRepository.findAll().stream()
-                .map(agenda -> modelMapper.map(agenda, AgendaResponseDto.class))
-                .toList();
-    }
-
-    @Override
     public AgendaSessionDto openAgenda(long agendaId, long durationMinutes) {
         Agenda agendaSaved = this.findById(agendaId);
+        LocalDateTime startTime = agendaSaved.getStartTime();
+        LocalDateTime endTime = agendaSaved.getEndTime();
+        LocalDateTime now = LocalDateTime.now();
 
-        if (this.isVotingOpen(agendaSaved)) {
-            throw new VoteSessionException("The voting session is already open.");
+        if (startTime != null && endTime != null) {
+            if (this.isVotingOpen(agendaSaved)) {
+                throw new VoteSessionException("The voting session is already open.");
+            } else if (endTime.isBefore(now)) {
+                throw new VoteSessionException("The voting session has already been closed and cannot be reopened.");
+            }
         }
 
-        LocalDateTime now = LocalDateTime.now();
         agendaSaved.setStartTime(now);
         agendaSaved.setEndTime(now.plusMinutes(durationMinutes));
 
@@ -61,7 +60,7 @@ public class AgendaServiceImpl implements AgendaServiceI {
 
     @Override
     public void verifyByTitle(String title) {
-        if (agendaRepository.verifyByTitle(title)) {
+        if (agendaRepository.existsByTitle(title)) {
             throw new AgendaAlreadyExistsException("An agenda with the title already exists.: " + title);
         }
     }

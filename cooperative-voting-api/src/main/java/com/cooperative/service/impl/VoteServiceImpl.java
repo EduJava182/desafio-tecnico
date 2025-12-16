@@ -30,7 +30,7 @@ public class VoteServiceImpl implements VoteServiceI {
         Vote vote = Vote.builder()
                 .agenda(agenda)
                 .userId(voteRequestDto.userId())
-                .vote(voteRequestDto.vote())
+                .voteType(voteRequestDto.vote())
                 .build();
 
         voteRepository.save(vote);
@@ -42,14 +42,11 @@ public class VoteServiceImpl implements VoteServiceI {
 
         VoteResultProjection finalCount = voteRepository.countVotesFinal(agendaId);
 
-        long yesVotes = finalCount.getYesVotes();
-        long noVotes = finalCount.getNoVotes();
-
         return new VoteResponseDto(
                 agenda.getId(),
-                yesVotes,
-                noVotes,
-                yesVotes + noVotes
+                finalCount.getYesVotes(),
+                finalCount.getNoVotes(),
+                finalCount.getTotalVotes()
         );
     }
 

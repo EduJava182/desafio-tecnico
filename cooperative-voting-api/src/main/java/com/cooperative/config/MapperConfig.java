@@ -2,10 +2,10 @@ package com.cooperative.config;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
 
-@Component
-public class Config {
+@Configuration
+public class MapperConfig {
 
     @Bean
     public ModelMapper modelMapper() {

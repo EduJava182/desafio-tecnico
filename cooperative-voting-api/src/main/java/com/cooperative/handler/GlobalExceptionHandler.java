@@ -41,19 +41,19 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AgendaAlreadyExistsException.class)
     public ResponseEntity<ExceptionsDetails> handleAgendaAlreadyExistsException(AgendaAlreadyExistsException ex) {
         return new ResponseEntity<>(ExceptionsDetails.builder()
-                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .statusCode(HttpStatus.CONFLICT.value())
                 .message(ex.getMessage())
                 .timestamp(LocalDateTime.now())
-                .build(), HttpStatus.BAD_REQUEST);
+                .build(), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(VoteSessionException.class)
     public ResponseEntity<ExceptionsDetails> handleVotingSessionException(VoteSessionException ex) {
         return new ResponseEntity<>(ExceptionsDetails.builder()
-                .statusCode(HttpStatus.BAD_REQUEST.value())
+                .statusCode(HttpStatus.CONFLICT.value())
                 .message(ex.getMessage())
                 .timestamp(LocalDateTime.now())
-                .build(), HttpStatus.BAD_REQUEST);
+                .build(), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(UserAlreadyVotedException.class)

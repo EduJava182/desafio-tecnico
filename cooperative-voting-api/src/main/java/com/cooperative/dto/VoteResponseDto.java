@@ -2,5 +2,8 @@ package com.cooperative.dto;
 
 public record VoteResponseDto(
 
-    long count
+    long agendaId,
+    long yesVotes,
+    long noVotes,
+    long total
 ) {}

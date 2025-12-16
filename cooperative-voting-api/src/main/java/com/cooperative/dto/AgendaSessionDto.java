@@ -6,7 +6,7 @@ public record AgendaSessionDto(
 
         long sessionId,
         long agendaId,
-        LocalDateTime startAgenda,
-        LocalDateTime endAgenda
+        LocalDateTime startTime,
+        LocalDateTime endTime
 ) {
 }

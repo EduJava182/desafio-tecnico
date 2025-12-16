@@ -13,7 +13,7 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
     boolean checkIfUserAlreadyVoted(Long agendaId, Long userId);
 
     @Query("""
-        SELECT 
+        SELECT
             v.agenda.id AS agendaId,
             SUM(CASE WHEN v.voteType = 'SIM' THEN 1 ELSE 0 END) AS yesVotes,
             SUM(CASE WHEN v.voteType = 'NAO' THEN 1 ELSE 0 END) AS noVotes,

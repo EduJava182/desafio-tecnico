@@ -61,7 +61,7 @@ public class AgendaServiceImpl implements AgendaServiceI {
                 log.warn("Voting session already open. Agenda ID: {}", agendaId);
                 throw new VoteSessionException("Voting session is already open.");
             }
-            if (agendaSaved.getEndTime().isBefore(now)) {
+            if (endTime.isBefore(now)) {
                 log.warn("Voting session already closed. Agenda ID: {}", agendaId);
                 throw new VoteSessionException(
                         "Voting session is already closed and cannot be reopened."

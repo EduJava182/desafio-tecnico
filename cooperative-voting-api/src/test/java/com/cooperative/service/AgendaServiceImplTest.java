@@ -3,6 +3,7 @@ package com.cooperative.service;
 import com.cooperative.dto.AgendaRequestDto;
 import com.cooperative.dto.AgendaResponseDto;
 import com.cooperative.dto.AgendaSessionResponseDto;
+import com.cooperative.dto.OpenAgendaRequestDto;
 import com.cooperative.exception.AgendaAlreadyExistsException;
 import com.cooperative.exception.AgendaNotFoundException;
 import com.cooperative.exception.VoteSessionException;
@@ -24,6 +25,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("AgendaServiceImplTest")
 class AgendaServiceImplTest {
 
     @InjectMocks
@@ -94,7 +96,9 @@ class AgendaServiceImplTest {
         long agendaId = 1L;
         when(agendaRepository.findById(agendaId)).thenReturn(Optional.empty());
 
-        assertThrows(AgendaNotFoundException.class, () -> agendaService.openAgenda(agendaId, openAgendaRequestDto()));
+        OpenAgendaRequestDto openAgendaRequestDto = openAgendaRequestDto();
+
+        assertThrows(AgendaNotFoundException.class, () -> agendaService.openAgenda(agendaId, openAgendaRequestDto));
     }
 
     @Test
@@ -106,7 +110,9 @@ class AgendaServiceImplTest {
 
         when(agendaRepository.findById(agendaId)).thenReturn(Optional.of(agenda));
 
-        assertThrows(VoteSessionException.class, () -> agendaService.openAgenda(agendaId, openAgendaRequestDto()));
+        OpenAgendaRequestDto openAgendaRequestDto = openAgendaRequestDto();
+
+        assertThrows(VoteSessionException.class, () -> agendaService.openAgenda(agendaId, openAgendaRequestDto));
     }
 
     @Test
@@ -118,7 +124,9 @@ class AgendaServiceImplTest {
 
         when(agendaRepository.findById(agendaId)).thenReturn(Optional.of(agenda));
 
-        assertThrows(VoteSessionException.class, () -> agendaService.openAgenda(agendaId, openAgendaRequestDto()));
+        OpenAgendaRequestDto openAgendaRequestDto = openAgendaRequestDto();
+
+        assertThrows(VoteSessionException.class, () -> agendaService.openAgenda(agendaId, openAgendaRequestDto));
     }
 
     @Test

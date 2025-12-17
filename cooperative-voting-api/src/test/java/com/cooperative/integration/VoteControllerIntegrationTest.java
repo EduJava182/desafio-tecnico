@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
+@DisplayName("VoteControllerIntegrationTest")
 class VoteControllerIntegrationTest {
 
     @Autowired
@@ -119,5 +120,40 @@ class VoteControllerIntegrationTest {
         assertEquals(1, resultResponse.getBody().getYesVotes());
         assertEquals(1, resultResponse.getBody().getNoVotes());
         assertEquals(2, resultResponse.getBody().getTotal());
+    }
+
+    @Test
+    @DisplayName("Should return error when getting results for an agenda that was never opened")
+    void voteCounter_Error_NotStarted() {
+        AgendaRequestDto createRequest = createAgendaRequestDto();
+        ResponseEntity<AgendaResponseDto> createResponse =
+                restTemplate.postForEntity("/agendas", createRequest, AgendaResponseDto.class);
+        Long agendaId = createResponse.getBody().getId();
+
+        ResponseEntity<String> resultResponse =
+                restTemplate.getForEntity("/votes/" + agendaId + "/result", String.class);
+
+        assertEquals(HttpStatus.CONFLICT, resultResponse.getStatusCode());
+        assertTrue(resultResponse.getBody().contains("Voting session has not started yet."));
+    }
+
+    @Test
+    @DisplayName("Should return error when getting results while voting is still in progress")
+    void voteCounter_Error_VotingActive() {
+        AgendaRequestDto createRequest = createAgendaRequestDto();
+        ResponseEntity<AgendaResponseDto> createResponse =
+                restTemplate.postForEntity("/agendas", createRequest, AgendaResponseDto.class);
+        Long agendaId = createResponse.getBody().getId();
+
+        Map<String, Object> openBody = new HashMap<>();
+        openBody.put("durationMinutes", 10);
+        HttpEntity<Map<String, Object>> openEntity = new HttpEntity<>(openBody);
+        restTemplate.exchange("/agendas/" + agendaId + "/open", HttpMethod.PATCH, openEntity, Void.class);
+
+        ResponseEntity<String> resultResponse =
+                restTemplate.getForEntity("/votes/" + agendaId + "/result", String.class);
+
+        assertEquals(HttpStatus.CONFLICT, resultResponse.getStatusCode());
+        assertTrue(resultResponse.getBody().contains("Results are not available yet because voting is still in progress"));
     }
 }

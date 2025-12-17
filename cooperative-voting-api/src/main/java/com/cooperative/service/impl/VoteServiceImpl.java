@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -53,18 +55,22 @@ public class VoteServiceImpl implements VoteServiceI {
     public VoteResponseDto voteCounter(long agendaId) {
         Agenda agenda = agendaServiceI.findById(agendaId);
 
-        if (!agendaServiceI.isVotingClosed(agenda)) {
-            log.warn("Cannot show results. Session for Agenda ID {} is not closed.", agendaId);
-            throw new VoteSessionException("Results are available only after the session is closed.");
+        if (agenda.getStartTime() == null) {
+            throw new VoteSessionException("Voting session has not started yet.");
+        }
+
+        if (agendaServiceI.isVotingOpen(agenda)) {
+            log.warn("Attempt to access results while voting is active for Agenda ID {}", agendaId);
+            throw new VoteSessionException("Results are not available yet because voting is still in progress. Please wait until " + agenda.getEndTime());
         }
 
         VoteResultProjection finalCount = voteRepository.countVotesFinal(agendaId);
 
         return new VoteResponseDto(
                 agenda.getId(),
-                finalCount.getYesVotes(),
-                finalCount.getNoVotes(),
-                finalCount.getTotalVotes()
+                Optional.ofNullable(finalCount.getYesVotes()).orElse(0L),
+                Optional.ofNullable(finalCount.getNoVotes()).orElse(0L),
+                Optional.ofNullable(finalCount.getTotalVotes()).orElse(0L)
         );
     }
 
@@ -72,7 +78,7 @@ public class VoteServiceImpl implements VoteServiceI {
     public void checkIfUserAlreadyVoted(long agendaId, long userId) {
         if (voteRepository.existsByAgendaIdAndUserId(agendaId, userId)) {
             log.warn("Vote rejected. User {} already voted on agenda {}", userId, agendaId);
-            throw new UserAlreadyVotedException("The member has already voted on this agenda.");
+            throw new UserAlreadyVotedException("The user has already voted on this agenda.");
         }
     }
 }

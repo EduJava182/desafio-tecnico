@@ -24,6 +24,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("VoteServiceImplTest")
 class VoteServiceImplTest {
 
     @InjectMocks
@@ -76,7 +77,7 @@ class VoteServiceImplTest {
         VoteResultProjection projection = mock(VoteResultProjection.class);
 
         when(agendaService.findById(agendaId)).thenReturn(agenda);
-        when(agendaService.isVotingClosed(agenda)).thenReturn(true);
+        when(agendaService.isVotingOpen(agenda)).thenReturn(false);
         when(voteRepository.countVotesFinal(agendaId)).thenReturn(projection);
         when(projection.getYesVotes()).thenReturn(10L);
         when(projection.getNoVotes()).thenReturn(5L);
@@ -97,9 +98,27 @@ class VoteServiceImplTest {
         long agendaId = agenda.getId();
 
         when(agendaService.findById(agendaId)).thenReturn(agenda);
-        when(agendaService.isVotingClosed(agenda)).thenReturn(false);
+        when(agendaService.isVotingOpen(agenda)).thenReturn(true);
 
         assertThrows(VoteSessionException.class, () -> voteService.voteCounter(agendaId));
+        verify(voteRepository, never()).countVotesFinal(anyLong());
+    }
+
+    @Test
+    @DisplayName("Should throw exception when counting votes for an agenda that was never opened")
+    void voteCounter_SessionNeverOpened() {
+        Agenda agenda = createAgendaModel();
+        agenda.setStartTime(null);
+        long agendaId = agenda.getId();
+
+        when(agendaService.findById(agendaId)).thenReturn(agenda);
+
+        VoteSessionException exception = assertThrows(VoteSessionException.class,
+                () -> voteService.voteCounter(agendaId));
+
+        assertEquals("Voting session has not started yet.", exception.getMessage());
+
+        verify(agendaService, never()).isVotingOpen(any());
         verify(voteRepository, never()).countVotesFinal(anyLong());
     }
 

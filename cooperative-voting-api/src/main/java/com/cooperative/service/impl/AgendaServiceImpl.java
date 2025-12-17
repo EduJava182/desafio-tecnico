@@ -28,7 +28,7 @@ public class AgendaServiceImpl implements AgendaServiceI {
 
     @Override
     public AgendaResponseDto createAgenda(AgendaRequestDto agendaRequestDto) {
-        String title = agendaRequestDto.getTitle();
+        String title = agendaRequestDto.getTitle().trim();
         log.info("Creating agenda. Title: {}", title);
 
         this.verifyByTitle(title);
@@ -50,8 +50,8 @@ public class AgendaServiceImpl implements AgendaServiceI {
         Agenda agendaSaved = this.findById(agendaId);
 
         if (!hasNotStarted(agendaSaved)) {
-            log.warn("Cannot open session for Agenda ID {}: Session is already active or finished.", agendaId);
-            throw new VoteSessionException("This agenda is already in voting or has already been voted.");
+            log.warn("This agenda has already been opened. Agenda ID: {}", agendaId);
+            throw new VoteSessionException("This agenda has already been opened before.");
         }
 
         long durationMinutes = Optional.ofNullable(openAgendaRequestDto)
@@ -74,7 +74,7 @@ public class AgendaServiceImpl implements AgendaServiceI {
     public void verifyByTitle(String title) {
         if (agendaRepository.existsByTitle(title)) {
             log.error("Agenda title already exists: {}", title);
-            throw new AgendaAlreadyExistsException("An agenda with the title already exists.: " + title);
+            throw new AgendaAlreadyExistsException("An agenda with the title already exists. " + title);
         }
     }
 
@@ -103,19 +103,21 @@ public class AgendaServiceImpl implements AgendaServiceI {
 
     @Override
     public boolean isVotingOpen(Agenda agenda) {
+        if (agenda.getStartTime() == null) return false;
+
         LocalDateTime now = LocalDateTime.now();
-        return !hasNotStarted(agenda) && now.isBefore(agenda.getEndTime());
+        return now.isBefore(agenda.getEndTime());
     }
 
     @Override
     public boolean isVotingClosed(Agenda agenda) {
-        return !hasNotStarted(agenda) && !isVotingOpen(agenda);
+        if (agenda.getStartTime() == null) return false;
+
+        LocalDateTime now = LocalDateTime.now();
+        return now.isAfter(agenda.getEndTime()) || now.isEqual(agenda.getEndTime());
     }
 
     private boolean hasNotStarted(Agenda agenda) {
-        LocalDateTime now = LocalDateTime.now();
-        return agenda.getStartTime() == null ||
-                agenda.getEndTime() == null ||
-                now.isBefore(agenda.getStartTime());
+        return agenda.getStartTime() == null;
     }
 }

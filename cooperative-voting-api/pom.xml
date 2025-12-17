@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.cooperative</groupId>
 	<artifactId>cooperative-voting-api</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>cooperative-voting-api</name>
 	<description>REST API for cooperative voting sessions</description>
 	<url/>
@@ -88,7 +88,6 @@
             <artifactId>jackson-databind</artifactId>
             <version>2.15.2</version>
         </dependency>
-
     </dependencies>
 
 	<build>

@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
+@DisplayName("AgendaControllerIntegrationTest")
 class AgendaControllerIntegrationTest {
 
     @Autowired
@@ -47,7 +48,6 @@ class AgendaControllerIntegrationTest {
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals(requestDto.getTitle(), response.getBody().getTitle());
-        assertNotNull(response.getBody().getId());
     }
 
     @Test

@@ -2,14 +2,15 @@ package com.cooperative.service.inter;
 
 import com.cooperative.dto.AgendaRequestDto;
 import com.cooperative.dto.AgendaResponseDto;
-import com.cooperative.dto.AgendaSessionDto;
+import com.cooperative.dto.AgendaSessionResponseDto;
+import com.cooperative.dto.OpenAgendaRequestDto;
 import com.cooperative.model.Agenda;
 
 public interface AgendaServiceI {
 
     AgendaResponseDto createAgenda(AgendaRequestDto agendaRequestDto);
 
-    AgendaSessionDto openAgenda(long agendaId, long duration);
+    AgendaSessionResponseDto openAgenda(long agendaId, OpenAgendaRequestDto openAgendaRequestDto);
 
     void verifyByTitle(String title);
 

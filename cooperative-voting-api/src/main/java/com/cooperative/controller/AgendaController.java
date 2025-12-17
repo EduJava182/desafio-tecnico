@@ -2,7 +2,7 @@ package com.cooperative.controller;
 
 import com.cooperative.dto.AgendaRequestDto;
 import com.cooperative.dto.AgendaResponseDto;
-import com.cooperative.dto.AgendaSessionDto;
+import com.cooperative.dto.AgendaSessionResponseDto;
 import com.cooperative.dto.OpenAgendaRequestDto;
 import com.cooperative.exception.ExceptionsDetails;
 import com.cooperative.service.inter.AgendaServiceI;
@@ -15,14 +15,16 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/agendas")
 @RequiredArgsConstructor
-@Tag(name = "Agendas", description = "Endpoints for managing guidelines")
+@Tag(name = "Agendas", description = "Endpoints for managing agendas")
 public class AgendaController {
 
     private final AgendaServiceI agendaServiceI;
@@ -98,6 +100,7 @@ public class AgendaController {
     })
     @PostMapping
     public ResponseEntity<AgendaResponseDto> createAgenda(@RequestBody @Valid AgendaRequestDto agendaRequestDto) {
+        log.info("Request to create new agenda with title: {}", agendaRequestDto.getTitle());
 
         return new ResponseEntity<>(agendaServiceI.createAgenda(agendaRequestDto), HttpStatus.CREATED);
     }
@@ -113,7 +116,7 @@ public class AgendaController {
                     description = "Voting session opened successfully",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = AgendaSessionDto.class)
+                            schema = @Schema(implementation = AgendaSessionResponseDto.class)
                     )
             ),
 
@@ -207,9 +210,11 @@ public class AgendaController {
             )
     })
     @PatchMapping("/{agendaId}/open")
-    public ResponseEntity<AgendaSessionDto> openAgenda(@PathVariable long agendaId,
-                                                       @RequestBody @Valid OpenAgendaRequestDto openAgendaRequestDto) {
+    public ResponseEntity<AgendaSessionResponseDto> openAgenda(@PathVariable long agendaId,
+                                                               @RequestBody(required = false)
+                                                               @Valid OpenAgendaRequestDto openAgendaRequestDto) {
+        log.info("Request to open voting session for agenda ID: {}", agendaId);
 
-        return new ResponseEntity<>(agendaServiceI.openAgenda(agendaId, openAgendaRequestDto.getDurationMinutes()), HttpStatus.OK);
+        return new ResponseEntity<>(agendaServiceI.openAgenda(agendaId, openAgendaRequestDto), HttpStatus.OK);
     }
 }

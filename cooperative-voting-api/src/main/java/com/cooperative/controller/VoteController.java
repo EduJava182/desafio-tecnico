@@ -13,10 +13,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/votes")
 @RequiredArgsConstructor
@@ -112,6 +114,8 @@ public class VoteController {
     public ResponseEntity<Void> submitVote(@PathVariable long agendaId,
                                            @RequestBody @Valid VoteRequestDto voteRequestDto) {
 
+        log.info("Submit vote request. Agenda ID: {}", agendaId);
+
         voteServiceI.submitVote(agendaId, voteRequestDto);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
@@ -187,6 +191,7 @@ public class VoteController {
     })
     @GetMapping("/{agendaId}/result")
     public ResponseEntity<VoteResponseDto> voteCounter(@PathVariable long agendaId) {
+        log.info("Request to get voting results for agenda ID: {}", agendaId);
 
         return new ResponseEntity<>(voteServiceI.voteCounter(agendaId), HttpStatus.OK);
     }

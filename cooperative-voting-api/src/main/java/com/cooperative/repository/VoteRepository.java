@@ -15,8 +15,8 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
     @Query("""
         SELECT
             v.agenda.id AS agendaId,
-            SUM(CASE WHEN v.voteType = 'SIM' THEN 1 ELSE 0 END) AS yesVotes,
-            SUM(CASE WHEN v.voteType = 'NAO' THEN 1 ELSE 0 END) AS noVotes,
+            SUM(CASE WHEN v.voteType = 'YES' THEN 1 ELSE 0 END) AS yesVotes,
+            SUM(CASE WHEN v.voteType = 'NO' THEN 1 ELSE 0 END) AS noVotes,
             COUNT(v) AS totalVotes
         FROM Vote v
         WHERE v.agenda.id = :agendaId

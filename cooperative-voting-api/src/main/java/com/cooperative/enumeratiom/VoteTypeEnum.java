@@ -13,7 +13,14 @@ public enum VoteTypeEnum {
         if (value == null) {
             return null;
         }
-        return VoteTypeEnum.valueOf(value.trim().toUpperCase());
+
+        try {
+            return VoteTypeEnum.valueOf(value.trim().toUpperCase());
+        } catch (IllegalArgumentException ex) {
+            throw new IllegalArgumentException(
+                    value + " is not a valid vote type. Use YES or NO."
+            );
+        }
     }
 
     @JsonValue

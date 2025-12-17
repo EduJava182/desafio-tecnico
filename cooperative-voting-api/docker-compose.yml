@@ -1,0 +1,49 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.1
+    container_name: cooperative_mysql
+    restart: always
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_as_ci
+      - --default-time-zone=UTC
+    environment:
+      TZ: UTC
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: cooperative_db
+      MYSQL_USER: coop_user
+      MYSQL_PASSWORD: coop_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-proot123" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 90s
+
+  api:
+    build: .
+    container_name: cooperative_api
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      TZ: UTC
+      JAVA_OPTS: "-Duser.timezone=UTC"
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/cooperative_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: coop_user
+      SPRING_DATASOURCE_PASSWORD: coop_pass
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_JPA_SHOW_SQL: "true"
+
+volumes:
+  mysql_data:

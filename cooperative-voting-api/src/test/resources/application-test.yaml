@@ -18,3 +18,8 @@ spring:
   sql:
     init:
       mode: never
+
+project:
+  version: "@project.version@"
+  name: "@project.name@"
+  description: "@project.description@"

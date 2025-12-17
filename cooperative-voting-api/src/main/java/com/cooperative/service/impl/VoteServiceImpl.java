@@ -53,14 +53,9 @@ public class VoteServiceImpl implements VoteServiceI {
     public VoteResponseDto voteCounter(long agendaId) {
         Agenda agenda = agendaServiceI.findById(agendaId);
 
-        if (agenda.getStartTime() == null && agenda.getEndTime() == null) {
-            log.warn("Voting session for Agenda ID {} has not been opened yet.", agendaId);
-            throw new VoteSessionException("Voting session has not started yet for this agenda.");
-        }
-
-        if (agendaServiceI.isVotingOpen(agenda)) {
-            log.warn("Voting already closed. Agenda ID: {}", agendaId);
-            throw new VoteSessionException("Voting session is still open. Results are available after closing.");
+        if (!agendaServiceI.isVotingClosed(agenda)) {
+            log.warn("Cannot show results. Session for Agenda ID {} is not closed.", agendaId);
+            throw new VoteSessionException("Results are available only after the session is closed.");
         }
 
         VoteResultProjection finalCount = voteRepository.countVotesFinal(agendaId);

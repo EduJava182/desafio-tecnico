@@ -16,6 +16,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -46,29 +47,20 @@ public class AgendaServiceImpl implements AgendaServiceI {
 
     @Override
     public AgendaSessionResponseDto openAgenda(long agendaId, OpenAgendaRequestDto openAgendaRequestDto) {
-        long durationMinutes = (openAgendaRequestDto != null && openAgendaRequestDto.getDurationMinutes() != null)
-                ? openAgendaRequestDto.getDurationMinutes() : 1L;
+        Agenda agendaSaved = this.findById(agendaId);
+
+        if (!hasNotStarted(agendaSaved)) {
+            log.warn("Cannot open session for Agenda ID {}: Session is already active or finished.", agendaId);
+            throw new VoteSessionException("This agenda is already in voting or has already been voted.");
+        }
+
+        long durationMinutes = Optional.ofNullable(openAgendaRequestDto)
+                .map(OpenAgendaRequestDto::getDurationMinutes)
+                .orElse(1L);
 
         log.info("Opening session for agenda ID: {} with duration: {} minutes", agendaId, durationMinutes);
 
-        Agenda agendaSaved = this.findById(agendaId);
-        LocalDateTime startTime = agendaSaved.getStartTime();
-        LocalDateTime endTime = agendaSaved.getEndTime();
         LocalDateTime now = LocalDateTime.now();
-
-        if (startTime != null && endTime != null) {
-            if (this.isVotingOpen(agendaSaved)) {
-                log.warn("Voting session already open. Agenda ID: {}", agendaId);
-                throw new VoteSessionException("Voting session is already open.");
-            }
-            if (endTime.isBefore(now)) {
-                log.warn("Voting session already closed. Agenda ID: {}", agendaId);
-                throw new VoteSessionException(
-                        "Voting session is already closed and cannot be reopened."
-                );
-            }
-        }
-
         agendaSaved.setStartTime(now);
         agendaSaved.setEndTime(now.plusMinutes(durationMinutes));
 
@@ -99,31 +91,31 @@ public class AgendaServiceImpl implements AgendaServiceI {
 
     @Override
     public void validateAgendaInVoting(Agenda agenda) {
-        long agendaId = agenda.getId();
-        LocalDateTime startTime = agenda.getStartTime();
-        LocalDateTime endTime = agenda.getEndTime();
-        LocalDateTime now = LocalDateTime.now();
-
-        if (startTime == null || endTime == null || now.isBefore(startTime)) {
-            log.warn("Voting session for Agenda ID {} has not started yet.", agendaId);
+        if (hasNotStarted(agenda)) {
+            log.warn("Voting session for Agenda ID {} has not started yet.", agenda.getId());
             throw new VoteSessionException("Voting session has not started yet.");
         }
-
-        if (now.isAfter(endTime)) {
-            log.warn("Voting session for Agenda ID {} is already closed.", agendaId);
+        if (isVotingClosed(agenda)) {
+            log.warn("Voting session for Agenda ID {} is already closed.", agenda.getId());
             throw new VoteSessionException("Voting session is already closed.");
         }
     }
 
     @Override
     public boolean isVotingOpen(Agenda agenda) {
-        LocalDateTime startTime = agenda.getStartTime();
-        LocalDateTime endTime = agenda.getEndTime();
         LocalDateTime now = LocalDateTime.now();
+        return !hasNotStarted(agenda) && now.isBefore(agenda.getEndTime());
+    }
 
-        return startTime != null
-                && endTime != null
-                && now.isAfter(startTime)
-                && now.isBefore(endTime);
+    @Override
+    public boolean isVotingClosed(Agenda agenda) {
+        return !hasNotStarted(agenda) && !isVotingOpen(agenda);
+    }
+
+    private boolean hasNotStarted(Agenda agenda) {
+        LocalDateTime now = LocalDateTime.now();
+        return agenda.getStartTime() == null ||
+                agenda.getEndTime() == null ||
+                now.isBefore(agenda.getStartTime());
     }
 }

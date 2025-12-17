@@ -19,4 +19,6 @@ public interface AgendaServiceI {
     void validateAgendaInVoting(Agenda agenda);
 
     boolean isVotingOpen(Agenda agenda);
+
+    boolean isVotingClosed(Agenda agenda);
 }

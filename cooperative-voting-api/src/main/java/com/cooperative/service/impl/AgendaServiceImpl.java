@@ -100,14 +100,16 @@ public class AgendaServiceImpl implements AgendaServiceI {
     @Override
     public void validateAgendaInVoting(Agenda agenda) {
         long agendaId = agenda.getId();
+        LocalDateTime startTime = agenda.getStartTime();
+        LocalDateTime endTime = agenda.getEndTime();
         LocalDateTime now = LocalDateTime.now();
 
-        if (agenda.getStartTime() == null || agenda.getEndTime() == null || now.isBefore(agenda.getStartTime())) {
+        if (startTime == null || endTime == null || now.isBefore(startTime)) {
             log.warn("Voting session for Agenda ID {} has not started yet.", agendaId);
             throw new VoteSessionException("Voting session has not started yet.");
         }
 
-        if (now.isAfter(agenda.getEndTime())) {
+        if (now.isAfter(endTime)) {
             log.warn("Voting session for Agenda ID {} is already closed.", agendaId);
             throw new VoteSessionException("Voting session is already closed.");
         }

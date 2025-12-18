@@ -27,7 +27,19 @@ O projeto está configurado para rodar facilmente utilizando o Docker Compose.
 
 *   Docker
 
-### Passos
+### Configuração Inicial
+
+O projeto possui configurações distintas para execução via Docker e execução Local.
+
+1.  **Para rodar com Docker (Padrão)**:
+    *   O arquivo `src/main/resources/application.example.yml` contém as configurações para o ambiente Docker (conectando ao host `mysql`).
+    *   Renomeie este arquivo para `src/main/resources/application.yml` para que seja utilizado como configuração padrão.
+
+2.  **Para rodar Localmente**:
+    *   Utilize o arquivo `src/main/resources/application-local.yml` (já configurado para `localhost`)
+
+
+### Passos para Execução (Docker)
 
 1.  Navegue até a pasta `docker` na raiz do projeto (ou onde se encontra o arquivo `docker-compose.yml`):
     ```bash
